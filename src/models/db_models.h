@@ -10,8 +10,8 @@ typedef struct {
     int id;
     int partOfSpeech;
     int subpartOfSpeech;
-    int sex; // пол
-    int case_; // падеж
+    int o_sex; // пол
+    int o_number;
     int propertiesCount;
     Property properties[];
 } Word;
