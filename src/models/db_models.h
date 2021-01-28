@@ -21,4 +21,6 @@ typedef struct {
     char *string;
 } WordValue;
 
+struct Words { int size, count; Word *words; };
+
 #endif // DB_MODELS_H
