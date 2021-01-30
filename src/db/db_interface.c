@@ -34,7 +34,7 @@ int check() {
         PrintWord(words.words[i]);
     }
 
-
+    printf("%s", GetWordWithEnding(1, 1, 1, 1));
 
     return 0;
 }
@@ -242,7 +242,7 @@ char *wordWithEndingToReturn = NULL;
 int CallbackGetWordWithEnding(void *data, int argc, char **argv, char **azColName) {
     free(wordWithEndingToReturn);
     wordWithEndingToReturn = calloc(strlen(argv[0]) + strlen(argv[1]) + 1, sizeof(char));
-    sscanf(wordWithEndingToReturn, "%s%s", argv[0], argv[1]); // word, ending
+    sprintf(wordWithEndingToReturn, "%s%s", argv[0], argv[1]); // word, ending
 
     return 0;
 }
@@ -256,12 +256,15 @@ char * GetWordWithEnding(int wordId, int sex, int case_, int number) {
 
     if (resCode) return NULL;
 
-    // select[19] + from[31] + where[80] + 2*id[4] + sex[2] + case[2] + number[2] + \0
-    char commandGetWordAndEnding[144] = "SELECT word, ending"
-                     "FROM words, word_variativity wa"
-                     "WHERE word.id == %d AND wa.id == %d AND wa.sex == %d AND wa.case == %d AND wa.number == %d";
+    // select[20] + from[32] + where[83] + 2*id[4] + sex[2] + case[2] + number[2] + \0
+    char commandGetWordAndEnding[149];
+    sprintf(commandGetWordAndEnding,
+            "SELECT word, ending "
+            "FROM words, word_variativity wa "
+            "WHERE words.id == %d AND wa.id == %d AND wa.sex == %d AND wa.'case' == %d AND wa.number == %d",
+            wordId, wordId, sex, case_, number);
 
-    resCode = sqlite3_exec(connection, commandGetWordAndEnding, CallbackGetEnding, 0, &errMsg);
+    resCode = sqlite3_exec(connection, commandGetWordAndEnding, CallbackGetWordWithEnding, 0, &errMsg);
 
     sqlite3_close(connection);
 
