@@ -12,13 +12,20 @@ typedef struct {
     int subpartOfSpeech;
     int o_sex; // пол
     int o_number;
+    int propertiesSize;
     int propertiesCount;
-    Property properties[];
+    Property *properties;
 } Word;
 
 typedef struct {
     int id;
     char *string;
 } WordValue;
+
+struct Words {
+    int size,
+    count;
+    Word *words;
+};
 
 #endif // DB_MODELS_H

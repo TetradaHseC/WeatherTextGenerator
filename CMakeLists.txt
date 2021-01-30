@@ -3,4 +3,6 @@ project(src C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(src src/main.c)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+add_executable(src src/main.c src/db/db_interface.c src/db/db_interface.h src/db/sqlite3.h src/db/sqlite3.c src/models/db_models.h)
