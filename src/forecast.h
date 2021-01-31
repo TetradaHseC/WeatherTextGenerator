@@ -1,11 +1,13 @@
 #include <forecastprop.h>
 #include <property.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h> 
 #include <assert.h>
 
 #define NOF 10 // Number of fields (in string)
 #define elif else if
+#define SIZE 255
 
 struct Forecast {
     struct Property properties[NOPW];
@@ -77,6 +79,13 @@ char** str_split(char* a_str, const char a_delim)   // украдено отсю
     }
 
     return result;
+}
+
+char** ReadFile(FILE* file) {
+    char text[SIZE*SIZE];
+    fgets(text , SIZE*SIZE, file );
+
+    return str_split(text, '\n');
 }
 
 struct Forecast ParseForecast(char* str) {
