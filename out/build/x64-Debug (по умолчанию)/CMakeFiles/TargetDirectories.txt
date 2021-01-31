@@ -1,3 +1,0 @@
-K:/VS Code/C/WeatherTextGenerator/out/build/x64-Debug (по умолчанию)/CMakeFiles/src.dir
-K:/VS Code/C/WeatherTextGenerator/out/build/x64-Debug (по умолчанию)/CMakeFiles/edit_cache.dir
-K:/VS Code/C/WeatherTextGenerator/out/build/x64-Debug (по умолчанию)/CMakeFiles/rebuild_cache.dir
