@@ -1,7 +1,7 @@
-#include "db/db_interface.h"
+#include "ui/ui.h"
 
 int main() {
-    check();
+    Start();
 
     return 0;
 }
