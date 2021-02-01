@@ -1,3 +1,6 @@
+#ifndef FORECASTPROP_H
+#define FORECASTPROP_H
+
 #define NOPW 17
 
 
@@ -20,3 +23,4 @@ enum ForecastProperties {
     pressure,
     event
 };
+#endif

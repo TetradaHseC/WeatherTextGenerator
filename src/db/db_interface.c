@@ -26,8 +26,8 @@
 void PrintWord(Word word);
 
 int check() {
-    Property property1 = { 1, 1.0 };
-    Property property2 = { 3, -6.0 };
+    Property property1 = {1, 1.0 };
+    Property property2 = {3, -6.0 };
     Property arr[] = {property1, property2};
     struct Words words = GetWordsByProperties(2, arr);
     for (int i = 0; i < words.count; ++i) {

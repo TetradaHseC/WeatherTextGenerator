@@ -5,13 +5,16 @@
 #include <string.h> 
 #include <assert.h>
 
+#ifndef FORECAST_H
+#define FORECAST_H
+
 #define NOF 10 // Number of fields (in string)
 #define elif else if
 #define SIZE 255
 
-struct Forecast {
-    struct Property properties[NOPW];
-};
+typedef struct {
+    struct StructProperty properties[NOPW];
+} Forecast;
 
 /*
 
@@ -33,7 +36,7 @@ char** Split(char* str, char key) {
 
 */
 
-char** str_split(char* a_str, const char a_delim)   // украдено отсюда 
+char** str_split(char* a_str, const char a_delim, size_t *pcount)   // украдено отсюда
 {                                                   // https://coderoad.ru/9210528/Split-строка-с-разделителями-в-C
     char** result    = 0;
     size_t count     = 0;
@@ -78,28 +81,31 @@ char** str_split(char* a_str, const char a_delim)   // украдено отсю
         *(result + idx) = 0;
     }
 
+    if (pcount != NULL)
+        *pcount = count;
+
     return result;
 }
 
-char** ReadFile(FILE* file) {
+char** ReadFile(FILE* file, size_t *pcount) {
     char text[SIZE*SIZE];
-    fgets(text , SIZE*SIZE, file );
+    fgets(text , SIZE*SIZE, file);
 
-    return str_split(text, '\n');
+    return str_split(text, '\n', pcount);
 }
 
-struct Forecast ParseForecast(char* str) {
-    char** strProps = str_split(str, ';');
-    struct Forecast forecast;
+Forecast ParseForecast(char* str) {
+    char** strProps = str_split(str, ';', NULL);
+    Forecast forecast;
 
-    char** date = str_split(strProps[0], '.');
+    char** date = str_split(strProps[0], '.', NULL);
     int i = 0;
     for (; i < 3; i++) {
         forecast.properties[i].propertyValue = atoi(date[i]);
     }
 
     for (int j = 1; j < 4; j++) {
-        char** tempsStr = str_split(strProps[j], '.');
+        char** tempsStr = str_split(strProps[j], '.', NULL);
         forecast.properties[i++].propertyValue = atoi(tempsStr[0]);
         forecast.properties[i++].propertyValue = atoi(tempsStr[2]);
     }
@@ -120,7 +126,7 @@ struct Forecast ParseForecast(char* str) {
 
     forecast.properties[i++].propertyValue = fallout;
 
-    char** wStr = str_split(strProps[5], '-');
+    char** wStr = str_split(strProps[5], '-', NULL);
     forecast.properties[i++].propertyValue = atoi(wStr[0]);
     forecast.properties[i++].propertyValue = atoi(wStr[1]);
 
@@ -145,7 +151,7 @@ struct Forecast ParseForecast(char* str) {
     }
     forecast.properties[i++].propertyValue = direction;
 
-    char** impStr = str_split(strProps[7], '-');
+    char** impStr = str_split(strProps[7], '-', NULL);
     forecast.properties[i++].propertyValue = atoi(wStr[0]);
     forecast.properties[i++].propertyValue = atoi(wStr[1]);
 
@@ -159,7 +165,8 @@ struct Forecast ParseForecast(char* str) {
         event = 2;
     } 
     forecast.properties[i++].propertyValue = event;
-    
 
     return forecast;
 }
+
+#endif //FORECAST_H

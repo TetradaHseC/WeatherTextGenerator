@@ -49,12 +49,12 @@ void UploadRecent();
 
 void OnInputCommand() {
     EnterFilepath(&inputFile);
-    OnNewRecent("input_recents", inputFile);
+    OnNewRecent("input_recent", inputFile);
 }
 
 void OnOutputCommand() {
     EnterFilepath(&outputFile);
-    OnNewRecent("output_recents", outputFile);
+    OnNewRecent("output_recent", outputFile);
 }
 
 void OnInputRecentCommand() {
@@ -155,7 +155,7 @@ void OnNewRecent(char *recentStorage, char *newRecent) {
     char *fullPath = calloc(strlen(recentStorage) + strlen("../res/") + 1, sizeof(char));
     strcat(fullPath, "../res/");
     strcat(fullPath, recentStorage);
-    FILE *storage = fopen(fullPath, "a");
+    FILE *storage = fopen(fullPath, "w");
     free(fullPath);
 
     fprintf(storage, "%s\n", newRecent);
@@ -164,7 +164,7 @@ void OnNewRecent(char *recentStorage, char *newRecent) {
 
 void UploadRecent() {
     // region input
-    char fullPath[22] = "../res/input_recents";
+    char fullPath[22] = "../res/input_recent";
     FILE *storage = fopen(fullPath, "r");
 
     inputFile = calloc(200, sizeof(char));
@@ -178,7 +178,7 @@ void UploadRecent() {
     // endregion
 
     // region output
-    sprintf(fullPath, "%s", "../res/output_recents");
+    sprintf(fullPath, "%s", "../res/output_recent");
     storage = fopen(fullPath, "r");
 
     outputFile = calloc(200, sizeof(char));
