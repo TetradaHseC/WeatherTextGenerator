@@ -65,10 +65,6 @@ void OnOutputRecentCommand() {
 
 }
 
-void OnStartCommand() {
-    printf(""); // TODO: запуск
-}
-
 void OnNotACommand() {
     printf("Такой команды нет, загляните в инфо сверху\n");
 }
@@ -103,11 +99,12 @@ int Start() {
                 OnOutputCommand();
                 break;
             case StartCommand:
-                OnStartCommand();
-                break;
-            case ExitCommand:
                 isRunning = false;
                 break;
+            case ExitCommand:
+                free(inputFile);
+                free(outputFile);
+                exit(0);
             default:
                 OnNotACommand();
                 break;
