@@ -198,6 +198,56 @@ struct Words GetWordsByProperties(int propc, Property *propv) {
 
     return wordsToReturn;
 }
+
+struct Words GetWordsByPartsOfSpeech(int partOfSpeech, int subpartOfSpeech, int propertyType, double propertyValue) {
+    struct Words NoWords = { 0, 0, };
+    sqlite3 *connection;
+    char *errMsg = 0;
+    int resCode;
+
+    resCode = sqlite3_open(DB_LOCATION, &connection);
+
+    if (resCode)
+        return NoWords;
+
+    ClearWordsToReturn();
+
+    char command[800] = { 0 };
+    sprintf(command, "%s", SELECT_ALL);
+
+    sprintf(command+strlen(command),
+            AND_PROPERTY_EQUALS,
+            propertyType, propertyValue, propertyType);
+    sprintf(command+strlen(command),
+            " AND (part_of_speech == %d AND subpart_of_speech == %d)",
+            partOfSpeech, subpartOfSpeech);
+
+    resCode = sqlite3_exec(connection, command, CallbackGettingWordsArray, 0, &errMsg);
+
+    if (resCode) {
+        sqlite3_close(connection);
+        return NoWords;
+    }
+
+    memset(command, 0, sizeof(char) * 800);
+    sprintf(command, "%s WHERE 1 == 1", GET_ALL_PROPERTIES);
+
+    sprintf(command + strlen(command),
+            AND_PROPERTY_EQUALS,
+            propertyType, propertyValue, propertyType);
+    sprintf(command+strlen(command),
+            " AND (part_of_speech == %d AND subpart_of_speech == %d)",
+            partOfSpeech, subpartOfSpeech);
+
+    resCode = sqlite3_exec(connection, command, AddPropertyToWord, 0, &errMsg);
+
+    sqlite3_close(connection);
+
+    if (resCode)
+        return NoWords;
+
+    return wordsToReturn;
+}
 // endregion
 // endregion
 
@@ -273,5 +323,7 @@ char * GetWordWithEnding(int wordId, int sex, int case_, int number) {
     return wordWithEndingToReturn;
 }
 // endregion
+
+
 
 #pragma clang diagnostic pop

@@ -1347,7 +1347,7 @@ typedef struct sqlite3_api_routines sqlite3_api_routines;
 ** a floating point value.
 ** ^The xCurrentTimeInt64() method returns, as an integer, the Julian
 ** Day Number multiplied by 86400000 (the number of milliseconds in
-** a 24-hour day).
+** a 24-hour Day).
 ** ^SQLite will use the xCurrentTimeInt64() method to get the current
 ** date and time if that method is available (if iVersion is 2 or
 ** greater and the function pointer is not NULL) and will fall back

@@ -1,16 +1,19 @@
-#include "forecastprop.h"
-#include "property.h"
+#ifndef FORECAST_H
+#define FORECAST_H
+// region FORECAST_H
+
+#include "../models/forecastprop.h"
+#include "../models/property.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h> 
 #include <assert.h>
 
-#ifndef FORECAST_H
-#define FORECAST_H
-
 #define NOF 10 // Number of fields (in string)
 #define elif else if
 #define SIZE 255
+
+#define scase(case_) if (strcmp(SWITCH_STRING_ARGUMENT, case_) == 0)
 
 typedef struct {
     struct StructProperty properties[NOPW];
@@ -77,7 +80,6 @@ char** str_split(char* a_str, const char a_delim, size_t *pcount)   // укра�
             *(result + idx++) = strdup(token);
             token = strtok(0, delim);
         }
-        assert(idx == count - 1);
         *(result + idx) = 0;
     }
 
@@ -88,10 +90,21 @@ char** str_split(char* a_str, const char a_delim, size_t *pcount)   // укра�
 }
 
 char** ReadFile(FILE* file, size_t *pcount) {
-    char text[SIZE*SIZE];
-    fgets(text , SIZE*SIZE, file);
+    char **text = calloc(SIZE, sizeof(char *));
+    char *row = calloc(SIZE, sizeof(char));
 
-    return str_split(text, '\n', pcount);
+    int i = 0; // счетчик строк
+    while(fgets(row, SIZE, file) != NULL)
+    {
+        text[i] = row;
+        i++;
+        row = calloc(SIZE, sizeof(char));
+    }
+    free(row);
+
+    *pcount = i;
+
+    return text;
 }
 
 Forecast ParseForecast(char* str) {
@@ -107,53 +120,48 @@ Forecast ParseForecast(char* str) {
     for (int j = 1; j < 4; j++) {
         char** tempsStr = str_split(strProps[j], '.', NULL);
         forecast.properties[i++].propertyValue = atoi(tempsStr[0]);
-        forecast.properties[i++].propertyValue = atoi(tempsStr[2]);
+        forecast.properties[i++].propertyValue = atoi(tempsStr[1]);
     }
 
-    int fallout;
+    int fallout = 0;
     char* falloutStr = strProps[4];
-    if (falloutStr == "нет") {
-        fallout = 0;
-    } elif(falloutStr == "дождь") {
-        fallout = 1;
-    } elif(falloutStr == "ливень") {
-        fallout = 2;
-    } elif(falloutStr == "снег") {
-        fallout = 3;
-    } else {
-        fallout = 4;
-    }
+#define SWITCH_STRING_ARGUMENT falloutStr
+    scase("дождь") fallout = 1;
+    scase("ливень") fallout = 2;
+    scase("снег") fallout = 3;
 
     forecast.properties[i++].propertyValue = fallout;
 
-    char** wStr = str_split(strProps[5], '-', NULL);
+    size_t checkRange = 0;
+    char** wStr = str_split(strProps[5], '-', &checkRange);
     forecast.properties[i++].propertyValue = atoi(wStr[0]);
-    forecast.properties[i++].propertyValue = atoi(wStr[1]);
+    forecast.properties[i++].propertyValue = atoi(wStr[wStr[1] != NULL]);
 
-    int direction;
-    char* directionStr = strProps[6];
-    if (falloutStr == "С") {
+    int direction=-1;
+    char *directionStr = strProps[6];
+#define SWITCH_STRING_ARGUMENT directionStr
+    scase("С")
         direction = 0;
-    } elif(falloutStr == "С-В") {
+    scase("С-В")
         direction = 1;
-    } elif(falloutStr == "В") {
+    scase( "В")
         direction = 2;
-    } elif(falloutStr == "Ю-В") {
+    scase("Ю-В")
         direction = 3;
-    } elif(falloutStr == "Ю") {
+    scase("Ю")
         direction = 4;
-    } elif(falloutStr == "Ю-З") {
+    scase("Ю-З")
         direction = 5;
-    } elif(falloutStr == "З") {
+    scase("З")
         direction = 6;
-    } elif(falloutStr == "С-З") {
+    scase("С-З")
         direction = 7;
-    }
+
     forecast.properties[i++].propertyValue = direction;
 
     char** impStr = str_split(strProps[7], '-', NULL);
     forecast.properties[i++].propertyValue = atoi(wStr[0]);
-    forecast.properties[i++].propertyValue = atoi(wStr[1]);
+    forecast.properties[i++].propertyValue = atoi(wStr[wStr[1] != NULL]);
 
     forecast.properties[i++].propertyValue = atoi(strProps[8]);
 
@@ -165,8 +173,10 @@ Forecast ParseForecast(char* str) {
         event = 2;
     } 
     forecast.properties[i++].propertyValue = event;
+    assert(i == NOPW);
 
     return forecast;
 }
 
+//endregion
 #endif //FORECAST_H
