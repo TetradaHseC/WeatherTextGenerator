@@ -21,4 +21,4 @@ char * GetEnding(int wordId, int sex, int case_, int number);
 // при новом запуске прошлые значения стираются!
 char * GetWordWithEnding(int wordId, int sex, int case_, int number);
 
-#endif DB_INTERFACE_H
+#endif//DB_INTERFACE_H

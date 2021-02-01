@@ -137,6 +137,7 @@ enum Commands GetCommand() {
         return StartCommand;
     scase("exit")
         return ExitCommand;
+#undef SWITCH_STRING_ARGUMENT
 
     return NotACommand;
 }

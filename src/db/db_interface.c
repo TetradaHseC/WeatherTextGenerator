@@ -62,7 +62,9 @@ int AddPropertyToWord(void *data, int argc, char **argv, char **azColName) {
 
     sscanf(argv[0], "%d", &id);
     sscanf(argv[1], "%d", &newProperty.propertyType);
-    sscanf(argv[2], "%lf", &newProperty.propertyValue);
+    double tempd;
+    sscanf(argv[2], "%lf", &tempd);
+    newProperty.propertyValue = (int)tempd;
 
     Word *pword = NULL;
 
@@ -186,7 +188,7 @@ struct Words GetWordsByProperties(int propc, Property *propv) {
     for (int i = 0; i < propc; ++i) {
         sprintf(command + strlen(command),
                 AND_PROPERTY_EQUALS,
-                propv[i].propertyType, propv[i].propertyValue, propv[i].propertyType);
+                propv[i].propertyType, (double)propv[i].propertyValue, propv[i].propertyType);
     }
 
     resCode = sqlite3_exec(connection, command, AddPropertyToWord, 0, &errMsg);
@@ -297,7 +299,7 @@ int CallbackGetWordWithEnding(void *data, int argc, char **argv, char **azColNam
     return 0;
 }
 
-char * GetWordWithEnding(int wordId, int sex, int case_, int number) {
+char *GetWordWithEnding(int wordId, int sex, int case_, int number) {
     sqlite3 *connection;
     char *errMsg = 0;
     int resCode;
@@ -306,13 +308,13 @@ char * GetWordWithEnding(int wordId, int sex, int case_, int number) {
 
     if (resCode) return NULL;
 
-    // select[20] + from[32] + where[83] + 2*id[4] + sex[2] + case[2] + number[2] + \0
-    char commandGetWordAndEnding[149];
+    // select[20] + from[32] + where[135] + 2*id[4] + sex[2] + case[2] + number[2] + \0
+    char commandGetWordAndEnding[202];
     sprintf(commandGetWordAndEnding,
             "SELECT word, ending "
             "FROM words, word_variativity wa "
-            "WHERE words.id == %d AND wa.id == %d AND wa.sex == %d AND wa.'case' == %d AND wa.number == %d",
-            wordId, wordId, sex, case_, number);
+            "WHERE words.id == %d AND wa.id == %d AND (wa.sex == %d OR %d == -1) AND (wa.'case' == %d OR %d == -1) AND (wa.number == %d OR %d == -1)",
+            wordId, wordId, sex, sex, case_, case_, number, number);
 
     resCode = sqlite3_exec(connection, commandGetWordAndEnding, CallbackGetWordWithEnding, 0, &errMsg);
 

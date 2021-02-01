@@ -19,26 +19,6 @@ typedef struct {
     struct StructProperty properties[NOPW];
 } Forecast;
 
-/*
-
-char** Split(char* str, char key) {
-    char** props = (char**)malloc(NOPW * 10 * (sizeof(char)));
-    for (int i = 0; i < NOPW; i++) {
-        for (int j = 0; i < 10; i++) {
-            props[i][j] = 0;
-        }
-    }
-
-    int i = 0;
-    int j = 0;
-    while (str[i] != '/n') {
-        props = 
-        if ()
-    }
-}
-
-*/
-
 char** str_split(char* a_str, const char a_delim, size_t *pcount)   // украдено отсюда
 {                                                   // https://coderoad.ru/9210528/Split-строка-с-разделителями-в-C
     char** result    = 0;
@@ -129,6 +109,7 @@ Forecast ParseForecast(char* str) {
     scase("дождь") fallout = 1;
     scase("ливень") fallout = 2;
     scase("снег") fallout = 3;
+#undef SWITCH_STRING_ARGUMENT
 
     forecast.properties[i++].propertyValue = fallout;
 
@@ -156,6 +137,7 @@ Forecast ParseForecast(char* str) {
         direction = 6;
     scase("С-З")
         direction = 7;
+#undef SWITCH_STRING_ARGUMENT
 
     forecast.properties[i++].propertyValue = direction;
 
@@ -167,11 +149,16 @@ Forecast ParseForecast(char* str) {
 
     int event = 0;
     char* eventStr = strProps[9];
-    if (falloutStr == "туман") {
+    if (strcmp(falloutStr,"туман")==0) {
         event = 1;
-    } elif(falloutStr == "гололедица") {
+    } elif (strcmp(falloutStr,"гололедица")==0) {
         event = 2;
-    } 
+    }elif (strcmp(falloutStr,"гроза")==0){
+        event = 3;
+    }
+    elif (strcmp(falloutStr,"метель")==0){
+        event = 4;
+    }
     forecast.properties[i++].propertyValue = event;
     assert(i == NOPW);
 

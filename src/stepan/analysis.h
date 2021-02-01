@@ -65,7 +65,7 @@ Analysis GetAnalysis(Forecast forecast) {
 
     analysis.propertys[AbsDayTemp].propertyValue = AbsTempAnalisys((forecast.properties[HighDayTemp].propertyValue + forecast.properties[LowDayTemp].propertyValue) / 2);
     analysis.propertys[AbsNightTemp].propertyValue = AbsTempAnalisys((forecast.properties[HighNightTemp].propertyValue + forecast.properties[LowNightTemp].propertyValue) / 2);
-    analysis.propertys[AbsFellTemp].propertyValue = AbsTempAnalisys((forecast.properties[HighFellTemp].propertyValue + forecast.properties[LowFeelTemp].propertyValue) / 2);
+    analysis.propertys[AbsFellTemp].propertyValue = AbsTempAnalisys((forecast.properties[HighFeelTemp].propertyValue + forecast.properties[LowFeelTemp].propertyValue) / 2);
 
     int month = forecast.properties[Month].propertyValue;
     int relevantTemp;

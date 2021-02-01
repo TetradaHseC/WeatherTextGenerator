@@ -7,7 +7,7 @@
 Property ForecastPropertyToDBPropertyAdapter(int i, struct StructProperty structProperty);
 
 int main() {
-    srand(NULL);
+    srand(0);
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
@@ -21,8 +21,11 @@ int main() {
         size_t count = 0;
         char **inputTable = ReadFile(input, &count);
         fclose(input);
+
+        FILE *output = fopen(outputFile, "w");
         for (int row = 1; row < count; ++row) {
-            Analysis fproperties = GetAnalysis(ParseForecast(inputTable[row]));
+            Forecast tempForecast = ParseForecast(inputTable[row]);
+            Analysis fproperties = GetAnalysis(tempForecast);
             Property properties[NOPA] = { 0 };
 
             for (int propertyI = 0; propertyI < NOPA; ++propertyI) {
@@ -31,11 +34,20 @@ int main() {
                 );
             }
 
-            GenerateTextForProperties(NOPA, properties, fproperties.forecast);
+            char *temprow = GenerateTextForProperties(NOPA, properties, fproperties.forecast);
+            fprintf(output,
+                    "%d.%d.%d: %s\n",
+                    fproperties.forecast.properties[Day].propertyValue,
+                    fproperties.forecast.properties[Month].propertyValue,
+                    fproperties.forecast.properties[Year].propertyValue,
+                    temprow);
+            free(temprow);
         }
         for (int i = 0; i < count; ++i)
             free(inputTable[i]);
         free(inputTable);
+
+        fclose(output);
     }
 #pragma clang diagnostic pop
 

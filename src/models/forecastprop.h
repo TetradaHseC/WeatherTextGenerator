@@ -5,14 +5,14 @@
 
 
 enum ForecastProperties {
-    Day,
+    Day=0,
     Month,
     Year,
     HighDayTemp,
     LowDayTemp,
     HighNightTemp,
     LowNightTemp,
-    HighFellTemp,
+    HighFeelTemp,
     LowFeelTemp,
     Fallout,
     LowWind,

@@ -1,7 +1,7 @@
 #ifndef ANALPROP_H
 #define ANALPROP_H
 
-#define NOPA 7
+#define NOPA 10
 
 enum AnalisysProperties {
     AbsDayTemp=0,
