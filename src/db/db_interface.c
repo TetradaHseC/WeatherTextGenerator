@@ -26,8 +26,8 @@
 void PrintWord(Word word);
 
 int check() {
-    Property property1 = { 1, 1.0 };
-    Property property2 = { 3, -6.0 };
+    Property property1 = {1, 1.0 };
+    Property property2 = {3, -6.0 };
     Property arr[] = {property1, property2};
     struct Words words = GetWordsByProperties(2, arr);
     for (int i = 0; i < words.count; ++i) {
@@ -49,6 +49,7 @@ void ClearWordsToReturn() {
     wordsToReturn.size = 0;
     wordsToReturn.count = 0;
     free(wordsToReturn.words);
+    wordsToReturn.words = NULL;
 }
 
 // region get words
@@ -62,22 +63,25 @@ int AddPropertyToWord(void *data, int argc, char **argv, char **azColName) {
 
     sscanf(argv[0], "%d", &id);
     sscanf(argv[1], "%d", &newProperty.propertyType);
-    sscanf(argv[2], "%lf", &newProperty.propertyValue);
+    double tempd;
+    sscanf(argv[2], "%lf", &tempd);
+    newProperty.propertyValue = (int)tempd;
 
     Word *pword = NULL;
-
-    if (id > wordsToReturn.count || wordsToReturn.words[id].id != id) {
-        for (int i = 0; i < wordsToReturn.count; ++i) {
-            if (wordsToReturn.words[i].id == id) {
-                pword = &wordsToReturn.words[i];
-                break;
+    if (id != 0) {
+        if (id > wordsToReturn.count || wordsToReturn.words[id].id != id) {
+            for (int i = 0; i < wordsToReturn.count; ++i) {
+                if (wordsToReturn.words[i].id == id) {
+                    pword = &wordsToReturn.words[i];
+                    break;
+                }
             }
+        } else {
+            pword = &wordsToReturn.words[id];
         }
-    } else {
-        pword = &wordsToReturn.words[id];
     }
 
-    if (pword->propertiesSize == pword->propertiesCount) {
+    if (pword != NULL && pword->propertiesSize == pword->propertiesCount) {
         Property *properties = calloc(pword->propertiesSize * 2 + 1, sizeof(Property));
 
         for (int i = 0; i < pword->propertiesCount; ++i) {
@@ -87,7 +91,8 @@ int AddPropertyToWord(void *data, int argc, char **argv, char **azColName) {
         pword->properties = properties;
         pword->propertiesSize = pword->propertiesSize * 2 + 1;
     }
-    pword->properties[pword->propertiesCount++] = newProperty;
+    if (pword != NULL)
+        pword->properties[pword->propertiesCount++] = newProperty;
 
     return 0;
 }
@@ -101,7 +106,8 @@ int CallbackGettingWordsArray(void *data, int argc, char **argv, char **azColNam
         for (int i = 0; i < wordsToReturn.count; ++i) {
             words[i] = wordsToReturn.words[i];
         }
-        free(wordsToReturn.words);
+        if (wordsToReturn.words != NULL)
+            free(wordsToReturn.words);
         wordsToReturn.words = words;
         wordsToReturn.size = wordsToReturn.size * 2 + 1;
     }
@@ -186,8 +192,58 @@ struct Words GetWordsByProperties(int propc, Property *propv) {
     for (int i = 0; i < propc; ++i) {
         sprintf(command + strlen(command),
                 AND_PROPERTY_EQUALS,
-                propv[i].propertyType, propv[i].propertyValue, propv[i].propertyType);
+                propv[i].propertyType, (double)propv[i].propertyValue, propv[i].propertyType);
     }
+
+    resCode = sqlite3_exec(connection, command, AddPropertyToWord, 0, &errMsg);
+
+    sqlite3_close(connection);
+
+    if (resCode)
+        return NoWords;
+
+    return wordsToReturn;
+}
+
+struct Words GetWordsByPartsOfSpeech(int partOfSpeech, int subpartOfSpeech, int propertyType, double propertyValue) {
+    struct Words NoWords = { 0, 0, };
+    sqlite3 *connection;
+    char *errMsg = 0;
+    int resCode;
+
+    resCode = sqlite3_open(DB_LOCATION, &connection);
+
+    if (resCode)
+        return NoWords;
+
+    ClearWordsToReturn();
+
+    char command[800] = { 0 };
+    sprintf(command, "%s", SELECT_ALL);
+
+    sprintf(command+strlen(command),
+            AND_PROPERTY_EQUALS,
+            propertyType, propertyValue, propertyType);
+    sprintf(command+strlen(command),
+            " AND (part_of_speech == %d AND subpart_of_speech == %d)",
+            partOfSpeech, subpartOfSpeech);
+
+    resCode = sqlite3_exec(connection, command, CallbackGettingWordsArray, 0, &errMsg);
+
+    if (resCode) {
+        sqlite3_close(connection);
+        return NoWords;
+    }
+
+    memset(command, 0, sizeof(char) * 800);
+    sprintf(command, "%s, parts_of_speech WHERE 1 == 1", GET_ALL_PROPERTIES);
+
+    sprintf(command + strlen(command),
+            AND_PROPERTY_EQUALS,
+            propertyType, propertyValue, propertyType);
+    sprintf(command+strlen(command),
+            " AND (part_of_speech == %d AND subpart_of_speech == %d)",
+            partOfSpeech, subpartOfSpeech);
 
     resCode = sqlite3_exec(connection, command, AddPropertyToWord, 0, &errMsg);
 
@@ -240,14 +296,15 @@ char * GetEnding(int wordId, int sex, int case_, int number) {
 char *wordWithEndingToReturn = NULL;
 
 int CallbackGetWordWithEnding(void *data, int argc, char **argv, char **azColName) {
-    free(wordWithEndingToReturn);
-    wordWithEndingToReturn = calloc(strlen(argv[0]) + strlen(argv[1]) + 1, sizeof(char));
-    sprintf(wordWithEndingToReturn, "%s%s", argv[0], argv[1]); // word, ending
+    //if (wordWithEndingToReturn != NULL)
+    //free(wordWithEndingToReturn);
+        wordWithEndingToReturn = calloc(strlen(argv[0]) + strlen(argv[1]) + 1, sizeof(char));
+    sprintf(wordWithEndingToReturn, "%s%s", argv[0], argv[1]? argv[1] : ""); // word, ending
 
     return 0;
 }
 
-char * GetWordWithEnding(int wordId, int sex, int case_, int number) {
+char *GetWordWithEnding(int wordId, int sex, int case_, int number) {
     sqlite3 *connection;
     char *errMsg = 0;
     int resCode;
@@ -256,13 +313,13 @@ char * GetWordWithEnding(int wordId, int sex, int case_, int number) {
 
     if (resCode) return NULL;
 
-    // select[20] + from[32] + where[83] + 2*id[4] + sex[2] + case[2] + number[2] + \0
-    char commandGetWordAndEnding[149];
+    // select[20] + from[32] + where[135] + 2*id[4] + sex[2] + case[2] + number[2] + \0
+    char commandGetWordAndEnding[202];
     sprintf(commandGetWordAndEnding,
             "SELECT word, ending "
             "FROM words, word_variativity wa "
-            "WHERE words.id == %d AND wa.id == %d AND wa.sex == %d AND wa.'case' == %d AND wa.number == %d",
-            wordId, wordId, sex, case_, number);
+            "WHERE words.id == %d AND wa.id == %d AND (wa.sex == %d OR %d == -1) AND (wa.'case' == %d OR %d == -1) AND (wa.number == %d OR %d == -1)",
+            wordId, wordId, sex, sex, case_, case_, number, number);
 
     resCode = sqlite3_exec(connection, commandGetWordAndEnding, CallbackGetWordWithEnding, 0, &errMsg);
 
@@ -273,5 +330,7 @@ char * GetWordWithEnding(int wordId, int sex, int case_, int number) {
     return wordWithEndingToReturn;
 }
 // endregion
+
+
 
 #pragma clang diagnostic pop

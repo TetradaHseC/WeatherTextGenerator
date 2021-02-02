@@ -3,7 +3,7 @@
 
 typedef struct {
     int propertyType;
-    double propertyValue;
+    int propertyValue;
 } Property;
 
 typedef struct {
