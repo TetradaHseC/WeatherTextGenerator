@@ -15,10 +15,6 @@
 
 #define scase(case_) if (strcmp(SWITCH_STRING_ARGUMENT, case_) == 0)
 
-typedef struct {
-    struct StructProperty properties[NOPW];
-} Forecast;
-
 char** str_split(char* a_str, const char a_delim, size_t *pcount)   // украдено отсюда
 {                                                   // https://coderoad.ru/9210528/Split-строка-с-разделителями-в-C
     char** result    = 0;

@@ -4,9 +4,11 @@
 #include "../models/propertyTypes.h"
 #include "../models/analprop.h"
 #include "../models/cases.h"
+#include "../models/forecastprop.h"
 #include <locale.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define NO_ENDING -1, -1, -1
 #define space " "
@@ -19,9 +21,9 @@ char *GetRandomWordBy(int partOfSpeech, int subpartOfSpeech, int propertyType, d
     struct Words daytime=GetWordsByPartsOfSpeech(partOfSpeech, subpartOfSpeech, propertyType, propertyValue);
     int rand_number= rand() % daytime.count;
     Word curWord = daytime.words[rand_number];
-    temps = GetWordWithEnding(curWord.id, -1, 0, 0);
+    temps = GetWordWithEnding(curWord.id, sex, case_, number);
     strcpy(word, temps);
-    free(temps);
+    //free(temps);
 
     return word;
 }
@@ -36,7 +38,7 @@ char *GenerateTextForProperties(int propc, Property *propv, Forecast forecast) {
     struct Words daytime=GetWordsByPartsOfSpeech(Существительные, СВремени, ВремяДня, День);
     int rand_number= rand() % daytime.count;
     Word curWord = daytime.words[rand_number];
-    temps = GetWordWithEnding(curWord.id, -1, 0, 0);
+    temps = GetWordWithEnding(curWord.id, NO_ENDING);
     char *wordValue = calloc(strlen(temps), sizeof(char));
     strcpy(wordValue, temps);
     free(temps);
@@ -53,9 +55,9 @@ char *GenerateTextForProperties(int propc, Property *propv, Forecast forecast) {
     rand_number=rand()%temperature.count;
     curWord=temperature.words[rand_number];
     temps = GetWordWithEnding(curWord.id,
-                              Мужской,
-                              Именительный,
-                              Единственное);
+                                  Мужской,
+                                  -1,
+                                  -1);
     wordValue = calloc(strlen(temps), sizeof(char));
     strcpy(wordValue, temps);
     free(temps);
@@ -63,14 +65,7 @@ char *GenerateTextForProperties(int propc, Property *propv, Forecast forecast) {
     free(wordValue);
     dospace(result);
 
-    if (propv[DayTempDeviation].propertyValue!=0) {
-        strcat(result,"обычного");
-        dospace(result);
-    }
-    else {
-        strcat(result,"как обычно");
-        dospace(result);
-    }
+
 
 
 
@@ -119,15 +114,15 @@ char *GenerateTextForProperties(int propc, Property *propv, Forecast forecast) {
 
             // region совет
             if(propv[DayTempDeviation].propertyValue>0){
-                strcat(result,"советуем одеваться полегче");
+                strcat(result,"Cоветуем одеваться полегче");
                 dospace(result);
             }
             else if(propv[DayTempDeviation].propertyValue<0){
-                strcat(result,"советуем одеваться потеплее");
+                strcat(result,"Cоветуем одеваться потеплее");
                 dospace(result);
             }
             else if(propv[DayTempDeviation].propertyValue==0){
-                strcat(result,"советуем одеваться по погоде");
+                strcat(result,"Cоветуем одеваться по погоде");
                 dospace(result);
             }
             // endregion
@@ -154,17 +149,6 @@ char *GenerateTextForProperties(int propc, Property *propv, Forecast forecast) {
         }
         dospace(result);
     }
-    /**
-     duplicate symbol '_ParseForecast' in:
-    CMakeFiles/src.dir/src/main.c.o
-    CMakeFiles/src.dir/src/generation/generation.c.o
-duplicate symbol '_str_split' in:
-    CMakeFiles/src.dir/src/main.c.o
-    CMakeFiles/src.dir/src/generation/generation.c.o
-duplicate symbol '_ReadFile' in:
-    CMakeFiles/src.dir/src/main.c.o
-    CMakeFiles/src.dir/src/generation/generation.c.o
-     */
 
     strcat(result,".");
     dospace(result);
@@ -217,14 +201,11 @@ duplicate symbol '_ReadFile' in:
     dospace(result);
     strcat(result,"будет");
     dospace(result);
-    temps=GetRandomWordBy(Прилагательные,ПТемпературы,Температура,propv[AbsNightTemp].propertyValue,NO_ENDING);
+    temps=GetRandomWordBy(Прилагательные,ПТемпературы,Температура,propv[AbsNightTemp].propertyValue,Женский,Именительный,Единственное );
     strcat(result,temps);
     free(temps);
     dospace(result);
 
     return result;
 }
-// нужны уж синонимы
-// но без изменения структуры мы оценку особо не повысим
-// так что не паримся
-// и пробуем хоть так запустить
+

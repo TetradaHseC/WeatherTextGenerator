@@ -6,10 +6,12 @@
 #include "../models/property.h"
 #include "../models/analprop.h"
 
+#define inRange(val, range) abs(val) > range ? range*abs(val)/val : val
+
 const int MidleTemp[] = { -24, -15, -5, 2, 15, 19, 23, 23, 15, 4, -5, -15};
 const int MidleFallout[] = {3, 3, 1, 0, 0, 0, 0, 1, 2, 2, 3, 3};
 const int AbsTempStep = 4; 
-const int TempDevStep = 2; 
+const int TempDevStep = 3;
 const int WindStep = 2;
 const int ImpulsStep = 2;
 const int PressureStep = 5;
@@ -23,12 +25,12 @@ typedef struct {
 } Analysis;
 
 int AbsTempAnalisys(int temp) {
-    return temp / AbsTempStep;
+    return inRange(temp / TempDevStep, 2);
 }
 
 int TempDevAnalysis(int month, int temp) {
     int dTemp = temp - MidleTemp[month];
-    return dTemp / TempDevStep;
+    return inRange(dTemp / TempDevStep, 2);
 }
 
 int WindAnalysis(int wind) {

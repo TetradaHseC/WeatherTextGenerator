@@ -3,7 +3,6 @@
 
 #define NOPW 17
 
-
 enum ForecastProperties {
     Day=0,
     Month,

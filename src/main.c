@@ -1,3 +1,4 @@
+#include <time.h>
 #include "ui/ui.h"
 #include "stepan/forecast.h"
 #include "stepan/analysis.h"
@@ -7,7 +8,7 @@
 Property ForecastPropertyToDBPropertyAdapter(int i, struct StructProperty structProperty);
 
 int main() {
-    srand(0);
+    srand((unsigned)time(0));
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"

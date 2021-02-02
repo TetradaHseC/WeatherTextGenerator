@@ -109,6 +109,8 @@ int Start() {
                 OnNotACommand();
                 break;
         }
+
+        system("pause");
     }
 
     return 0;

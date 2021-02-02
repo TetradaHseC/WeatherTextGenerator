@@ -49,6 +49,7 @@ void ClearWordsToReturn() {
     wordsToReturn.size = 0;
     wordsToReturn.count = 0;
     free(wordsToReturn.words);
+    wordsToReturn.words = NULL;
 }
 
 // region get words
@@ -67,19 +68,20 @@ int AddPropertyToWord(void *data, int argc, char **argv, char **azColName) {
     newProperty.propertyValue = (int)tempd;
 
     Word *pword = NULL;
-
-    if (id > wordsToReturn.count || wordsToReturn.words[id].id != id) {
-        for (int i = 0; i < wordsToReturn.count; ++i) {
-            if (wordsToReturn.words[i].id == id) {
-                pword = &wordsToReturn.words[i];
-                break;
+    if (id != 0) {
+        if (id > wordsToReturn.count || wordsToReturn.words[id].id != id) {
+            for (int i = 0; i < wordsToReturn.count; ++i) {
+                if (wordsToReturn.words[i].id == id) {
+                    pword = &wordsToReturn.words[i];
+                    break;
+                }
             }
+        } else {
+            pword = &wordsToReturn.words[id];
         }
-    } else {
-        pword = &wordsToReturn.words[id];
     }
 
-    if (pword->propertiesSize == pword->propertiesCount) {
+    if (pword != NULL && pword->propertiesSize == pword->propertiesCount) {
         Property *properties = calloc(pword->propertiesSize * 2 + 1, sizeof(Property));
 
         for (int i = 0; i < pword->propertiesCount; ++i) {
@@ -89,7 +91,8 @@ int AddPropertyToWord(void *data, int argc, char **argv, char **azColName) {
         pword->properties = properties;
         pword->propertiesSize = pword->propertiesSize * 2 + 1;
     }
-    pword->properties[pword->propertiesCount++] = newProperty;
+    if (pword != NULL)
+        pword->properties[pword->propertiesCount++] = newProperty;
 
     return 0;
 }
@@ -103,7 +106,8 @@ int CallbackGettingWordsArray(void *data, int argc, char **argv, char **azColNam
         for (int i = 0; i < wordsToReturn.count; ++i) {
             words[i] = wordsToReturn.words[i];
         }
-        free(wordsToReturn.words);
+        if (wordsToReturn.words != NULL)
+            free(wordsToReturn.words);
         wordsToReturn.words = words;
         wordsToReturn.size = wordsToReturn.size * 2 + 1;
     }
@@ -232,7 +236,7 @@ struct Words GetWordsByPartsOfSpeech(int partOfSpeech, int subpartOfSpeech, int 
     }
 
     memset(command, 0, sizeof(char) * 800);
-    sprintf(command, "%s WHERE 1 == 1", GET_ALL_PROPERTIES);
+    sprintf(command, "%s, parts_of_speech WHERE 1 == 1", GET_ALL_PROPERTIES);
 
     sprintf(command + strlen(command),
             AND_PROPERTY_EQUALS,
@@ -292,9 +296,10 @@ char * GetEnding(int wordId, int sex, int case_, int number) {
 char *wordWithEndingToReturn = NULL;
 
 int CallbackGetWordWithEnding(void *data, int argc, char **argv, char **azColName) {
-    free(wordWithEndingToReturn);
-    wordWithEndingToReturn = calloc(strlen(argv[0]) + strlen(argv[1]) + 1, sizeof(char));
-    sprintf(wordWithEndingToReturn, "%s%s", argv[0], argv[1]); // word, ending
+    //if (wordWithEndingToReturn != NULL)
+    //free(wordWithEndingToReturn);
+        wordWithEndingToReturn = calloc(strlen(argv[0]) + strlen(argv[1]) + 1, sizeof(char));
+    sprintf(wordWithEndingToReturn, "%s%s", argv[0], argv[1]? argv[1] : ""); // word, ending
 
     return 0;
 }
